@@ -2,12 +2,12 @@
 #   Programming assignment 3 - Week 4
 #   Julien Coquet
 
-# This function takes two arguments (state and type of outcome) 
+# This function takes three arguments (state, type of outcome and rank) 
 # then sorts through a data file to return the name of the hospital 
-# with the lowest number of deaths for a given outcome
+# with the desired rank (nth best/lowest number of deaths) for a given outcome
 
-best <- function(state="AL", outcome="heart attack") {
-  # Inputs default to "AL" for state and "heart attack" for outcome
+rankhospital <- function(state="AL", outcome="heart attack", rank="best") {
+  # Inputs default to "AL" for state, "heart attack" for outcome and "best" for rank
   
   # If state.abb is available, check for state validity
   if (!is.null(state.abb)){
@@ -15,6 +15,12 @@ best <- function(state="AL", outcome="heart attack") {
       stop("Invalid state.")
   }
   
+  if (!state %in% c(1:10)){
+      if (!state %in% c("best","worst")){
+        stop("Invalid rank.")
+      }
+  }
+  #######
   # Vector mapping
   allowedOutcomes <- c('heart attack'=1,'heart failure'=1,'pneumonia'=1)
   outcomeColumn=c("heart attack"=4, "heart failure"=5, "pneumonia"=6)
