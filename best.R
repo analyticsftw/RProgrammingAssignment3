@@ -2,7 +2,9 @@
 #   Programming assignment 3 - Week 4
 #   Julien Coquet
 
-# Logic & functions
+# This function takes two arguments (state and type of outcome) 
+# then sorts through a data file to return the name of the hospital 
+# with the lowest number of deaths for a given outcome
 
 best <- function(state="AL", outcome="heart attack") {
   # Inputs default to "AL" for state and "heart attack" for outcome
