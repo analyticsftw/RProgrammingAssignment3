@@ -1,3 +1,7 @@
+## R Programming
+#   Programming assignment 3 - Week 4
+#   Julien Coquet
+
 # Logic & functions
 
 best <- function(state="AL", outcome="heart attack") {
@@ -5,34 +9,29 @@ best <- function(state="AL", outcome="heart attack") {
   
   # If state.abb is available, check for state validity
   if (!is.null(state.abb)){
-    # we have state.abb support
     if(!state %in% state.abb == TRUE)
       stop("Invalid state.")
   }
   
   # Vector mapping
   allowedOutcomes <- c('heart attack'=1,'heart failure'=1,'pneumonia'=1)
-  #outcomeColumn=c("heart attack"=11, "heart failure"=17, "pneumonia"=23)
-  
-  outcomeColumn=c(
-    "heart attack"="Hospital.30.Day.Death..Mortality..Rates.from.Heart.Attack", 
-    "heart failure"="Hospital.30.Day.Death..Mortality..Rates.from.Heart.Failure", 
-    "pneumonia"="Hospital.30.Day.Death..Mortality..Rates.from.Pneumonia"
-  )
-  
-  # Exit program if outcome not allowed
-  if (is.na(allowedOutcomes[outcome])){
-      #errorMessage = paste("Outcome",outcome, "not allowed; use one of the following: 'heart attack','heart failure','pneumonia'")
-      stop("Invalid outcome.")
-  }
+  outcomeColumn=c("heart attack"=4, "heart failure"=5, "pneumonia"=6)
 
+  # Exit program if outcome not allowed or set the index for the selected outcome
+  if (is.na(allowedOutcomes[outcome])){
+      stop("Invalid outcome.")
+  } else {
+    deathCol = outcomeColumn[outcome]  
+  }
+  
   ## Read outcome data
   hospitals <- read.csv("outcome-of-care-measures.csv", colClasses = "character")
   
-  ## Check that state and outcome are valid
+  # Subset data for selected state
   statesMatch <- hospitals$State==state
   stateData <- hospitals[statesMatch,]
   
+  # Plan for possibility there is no data for selected state (extra credit?)
   nres = nrow(stateData)
   if (nres>0){
     # We have records!
@@ -41,26 +40,21 @@ best <- function(state="AL", outcome="heart attack") {
     stop(paste("No data for",state))
   }
   
+  # for simplicity, only conserve relevant columns
+  stateData <- data.frame(stateData[,c(1,2,7,11,17,23)])
+  
   ## Return hospital name in that state with lowest 30-day death
-  
-  # Select outcome column
-  selectedOutcome <- outcomeColumn[outcome]
-  
-  ## Clean & sort
-  # Remove NAs
-  #stateOutcomeData <- stateData[]
-  stateData <- stateData[selectedOutcome]!='Not Available'
 
+  # Clean & sort, remove NAs
+  noNAs <- stateData[deathCol]!='Not Available'
+  stateData <- stateData[noNAs,]
+  
+  # Convert text fields to numeric
+  stateData[deathCol] <- lapply(stateData[deathCol],FUN = as.numeric)
   
   # Sort
-  sortedHospitals <- stateData[order(round(as.numeric(stateData[selectedOutcome])))]
-  #sortedHospitals <- data.frame(sortedHospitals$Hospital.Name,sortedHospitals[selectedOutcome])
+  df <-stateData[order(stateData[deathCol]),]
   
-  # Rename columns (optional)
-  #names(sortedHospitals) <- c('Hospital name', "Deaths")
-  
-  ## Print top result 
-  #print (paste("Hospital(s) in",state,"with lowest 30-day deaths for",outcome))
-  #head(sortedHospitals,1)
-  head(sortedHospitals,1)
+  # Output
+  head(df$Hospital.Name,1)
 }
