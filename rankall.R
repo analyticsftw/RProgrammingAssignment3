@@ -6,16 +6,8 @@
 # then sorts through a data file to return the name of the hospitals 
 # with the desired rank (nth best/lowest number of deaths) for a given outcome in each state
 
-source("rankhospital.R")
-
 rankall <- function(outcome="heart attack", rank="best"){
   # Inputs default to "heart attack" for outcome and "best" for rank
-  
-  ## Read outcome data
-  ## Check that state and outcome are valid
-  ## For each state, find the hospital of the given rank
-  ## Return a data frame with the hospital names and the
-  ## (abbreviated) state name
   
   if (!rank %in% c("best","worst")){
     if (!is.numeric(rank)){
@@ -23,7 +15,6 @@ rankall <- function(outcome="heart attack", rank="best"){
     }
   } 
   
-  #######
   # Vector mapping
   allowedOutcomes <- c('heart attack'=1,'heart failure'=1,'pneumonia'=1)
   outcomeColumn=c("heart attack"=4, "heart failure"=5, "pneumonia"=6)
@@ -50,44 +41,50 @@ rankall <- function(outcome="heart attack", rank="best"){
   # Convert text fields to numeric
   allStateData[deathCol] <- lapply(allStateData[deathCol],FUN = as.numeric)
   
-  # Update number of rows in dataframe
-  nres <- nrow(allStateData)
-  states <-unique(allStateData$State)
+  # Find unique states and sort them alphabetically
+  states <- unique(allStateData$State)
+  states <- states[sort.list(states, na.last = NA)]
 
-  # Find rank
-  lnum <- rank
-  if (is.numeric(rank) && rank > nres) stop("Rank out of range.")
-  if (rank == "best") lnum <- 1
-  if (rank == "worst") lnum <- nres
-    
-  # Go through all states and extract state data matching the function then consolidate into one data frame
+  # Copy dataframe structure for dataframe to be returned
   rDF <- allStateData[0,]
-  return (rDF)
+  
+  ## Go through all states and extract state data matching the function then consolidate into one data frame
+
   for (iState in states){
     sDF <- subset(allStateData, State == iState)
+    # Update number of rows in state dataframe
+    nres <- nrow(sDF)
+    
+    # Order state data frame based on outcome rating (ascending) and name (alphabetical)
     sDF <- sDF[order(sDF[deathCol],sDF$Hospital.Name ),]
-    # Does requested rank exist? If not replace with just the state name
+    
+    # Find rank
+    lnum <- rank
+    if (rank == "best") lnum <- 1
+    if (rank == "worst") lnum <- nres
+    
+    
+    # Does requested rank exist? If not replace with just the state name and NAs
     if (is.na(sDF[lnum,]$Provider.Number)){
-      iDF <-  allStateData[0,]
-      iDF <- rbind(iDF, "State"=iState,"NA","NA","NA" )
-      print(iDF)
+      iDF <- data.frame()
+      iDF <- rbind(iDF, c(NA,NA,iState,NA,NA,NA))
+      names(iDF) <- names(sDF)
       iDF <- iDF[1,]
     } else {
       iDF <- sDF[lnum,]
     }
-    rDF <- rbind(rDF, iDF)
+    # Use states for rows
+    row.names(iDF) <- iState
+    
+    # Clean up and insert state data into DF
+    rDF <- suppressWarnings(rbind(rDF, iDF))
   }
-  # Sort by rate then by alphabetical order
-  #df <- allStateData[order(allStateData[deathCol],allStateData$Hospital.Name ),]
   
-
-  
-  # Output
-  #names(df) <- c("Hospital name")
-  #return(head(df[lnum,]$Hospital.Name,1))
+  ## Output / return
+  # Only conserve hospital name and state, rename columns
+  rDF <- rDF[,c(2,3)]
+  names(rDF) <- c("Hospital","State")
   
   return (rDF)
-  
-  
   
 }
