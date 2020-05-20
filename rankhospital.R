@@ -15,11 +15,12 @@ rankhospital <- function(state="AL", outcome="heart attack", rank="best") {
       stop("Invalid state.")
   }
   
-  if (!state %in% c(1:10)){
-      if (!state %in% c("best","worst")){
+  if (!rank %in% c("best","worst")){
+    if (!is.numeric(rank)){
         stop("Invalid rank.")
-      }
-  }
+    }
+  } 
+  
   #######
   # Vector mapping
   allowedOutcomes <- c('heart attack'=1,'heart failure'=1,'pneumonia'=1)
@@ -40,7 +41,7 @@ rankhospital <- function(state="AL", outcome="heart attack", rank="best") {
   stateData <- hospitals[statesMatch,]
   
   # Plan for possibility there is no data for selected state (extra credit?)
-  nres = nrow(stateData)
+  nres <- nrow(stateData)
   if (nres>0){
     # We have records!
   } else {
@@ -60,9 +61,20 @@ rankhospital <- function(state="AL", outcome="heart attack", rank="best") {
   # Convert text fields to numeric
   stateData[deathCol] <- lapply(stateData[deathCol],FUN = as.numeric)
   
-  # Sort
-  df <-stateData[order(stateData[deathCol]),]
+  # Update number of rows in dataframe
+  nres <- nrow(stateData)
+  
+  # Sort by rate then by alphabetical order
+  df <-stateData[order(stateData[deathCol],stateData$Hospital.Name),]
+  
+  # Find rank
+  lnum <- rank
+  if (is.numeric(rank) && rank > nres) stop("Rank out of range.")
+  if (rank == "best") lnum <- 1
+  if (rank == "worst") lnum <- nres
   
   # Output
-  head(df$Hospital.Name,1)
+  #names(df) <- c("Hospital name")
+  return(head(df[lnum,]$Hospital.Name,1))
+  
 }
