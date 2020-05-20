@@ -15,7 +15,6 @@ rankhospital <- function(state="AL", outcome="heart attack", rank="best") {
       stop("Invalid state.")
   }
   
-  
   if (!rank %in% c("best","worst")){
     if (!is.numeric(rank)){
         stop("Invalid rank.")
@@ -70,7 +69,7 @@ rankhospital <- function(state="AL", outcome="heart attack", rank="best") {
   
   # Find rank
   lnum <- rank
-  if (rank > nres) stop("Rank out of range.")
+  if (is.numeric(rank) && rank > nres) stop("Rank out of range.")
   if (rank == "best") lnum <- 1
   if (rank == "worst") lnum <- nres
   
