@@ -17,7 +17,7 @@ rankall <- function(outcome="heart attack", rank="best"){
   
   # Vector mapping
   allowedOutcomes <- c('heart attack'=1,'heart failure'=1,'pneumonia'=1)
-  outcomeColumn=c("heart attack"=4, "heart failure"=5, "pneumonia"=6)
+  outcomeColumn = c("heart attack"=4, "heart failure"=5, "pneumonia"=6)
   
   # Exit program if outcome not allowed or set the index for the selected outcome
   if (is.na(allowedOutcomes[outcome])){
@@ -83,7 +83,7 @@ rankall <- function(outcome="heart attack", rank="best"){
   ## Output / return
   # Only conserve hospital name and state, rename columns
   rDF <- rDF[,c(2,3)]
-  names(rDF) <- c("Hospital","State")
+  names(rDF) <- c("hospital","state")
   
   return (rDF)
   
