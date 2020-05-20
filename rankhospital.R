@@ -75,6 +75,6 @@ rankhospital <- function(state="AL", outcome="heart attack", rank="best") {
   
   # Output
   #names(df) <- c("Hospital name")
-  head(df[lnum,]$Hospital.Name,1)
+  return(head(df[lnum,]$Hospital.Name,1))
   
 }

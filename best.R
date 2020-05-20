@@ -58,5 +58,5 @@ best <- function(state="AL", outcome="heart attack") {
   df <-stateData[order(stateData[deathCol]),]
   
   # Output
-  head(df$Hospital.Name,1)
+  return(head(df$Hospital.Name,1))
 }
